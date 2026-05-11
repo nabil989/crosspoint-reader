@@ -31,6 +31,8 @@ class EpubReaderActivity final : public Activity {
   float pendingSpineProgress = 0.0f;
   bool pendingScreenshot = false;
   bool pendingSyncSaveError = false;
+  bool pendingBookmarkAddedPopup = false;
+  bool pendingBookmarkRemovedPopup = false;
   bool skipNextButtonCheck = false;  // Skip button processing for one frame after subactivity exit
   bool automaticPageTurnActive = false;
 
@@ -52,6 +54,8 @@ class EpubReaderActivity final : public Activity {
   // Jump to a percentage of the book (0-100), mapping it to spine and page.
   void jumpToPercent(int percent);
   void onReaderMenuConfirm(EpubReaderMenuActivity::MenuAction action);
+  /** Same flow as short Confirm — opens EpubReaderMenuActivity (chapter list, bookmarks, etc.). */
+  void presentReaderMenu();
   void applyOrientation(uint8_t orientation);
   void toggleAutoPageTurn(uint8_t selectedPageTurnOption);
   void pageTurn(bool isForwardTurn);
@@ -65,6 +69,8 @@ class EpubReaderActivity final : public Activity {
   bool readingStatsSessionActive = false;
   time_t readingStatsSegmentWall = 0;
   uint32_t readingStatsLastMillis = 0;
+  // Long-press Confirm while reading: add bookmark at current spine/page (no menu).
+  void tryAddBookmarkAtCurrentPage();
 
  public:
   explicit EpubReaderActivity(GfxRenderer& renderer, MappedInputManager& mappedInput, std::unique_ptr<Epub> epub)
