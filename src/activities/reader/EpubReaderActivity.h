@@ -3,6 +3,8 @@
 #include <Epub/FootnoteEntry.h>
 #include <Epub/Section.h>
 
+#include <cstdint>
+#include <ctime>
 #include <optional>
 
 #include "EpubReaderMenuActivity.h"
@@ -57,6 +59,12 @@ class EpubReaderActivity final : public Activity {
   // Footnote navigation
   void navigateToHref(const std::string& href, bool savePosition = false);
   void restoreSavedPosition();
+
+  void flushReadingStatsSession();
+
+  bool readingStatsSessionActive = false;
+  time_t readingStatsSegmentWall = 0;
+  uint32_t readingStatsLastMillis = 0;
 
  public:
   explicit EpubReaderActivity(GfxRenderer& renderer, MappedInputManager& mappedInput, std::unique_ptr<Epub> epub)

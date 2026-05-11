@@ -10,6 +10,7 @@
 #include <Logging.h>
 #include <esp_system.h>
 
+#include <ctime>
 #include <iterator>
 #include <limits>
 
@@ -28,6 +29,7 @@
 #include "RecentBooksStore.h"
 #include "components/UITheme.h"
 #include "fontIds.h"
+#include "util/ReadingStatsStore.h"
 #include "util/ScreenshotUtil.h"
 
 namespace {
@@ -96,11 +98,18 @@ void EpubReaderActivity::onEnter() {
   APP_STATE.saveToFile();
   RECENT_BOOKS.addBook(epub->getPath(), epub->getTitle(), epub->getAuthor(), epub->getThumbBmpPath());
 
+  readingStatsSessionActive = true;
+  readingStatsSegmentWall = time(nullptr);
+  readingStatsLastMillis = millis();
+
   // Trigger first update
   requestUpdate();
 }
 
 void EpubReaderActivity::onExit() {
+  flushReadingStatsSession();
+  readingStatsSessionActive = false;
+
   Activity::onExit();
 
   // Reset orientation back to portrait for the rest of the UI
@@ -117,6 +126,10 @@ void EpubReaderActivity::loop() {
     // Should never happen
     finish();
     return;
+  }
+
+  if (readingStatsSessionActive && millis() - readingStatsLastMillis >= 60000UL) {
+    flushReadingStatsSession();
   }
 
   if (automaticPageTurnActive) {
@@ -950,6 +963,15 @@ void EpubReaderActivity::restoreSavedPosition() {
     section.reset();
   }
   requestUpdate();
+}
+
+void EpubReaderActivity::flushReadingStatsSession() {
+  if (!readingStatsSessionActive) {
+    return;
+  }
+  auto& st = ReadingStatsStore::instance();
+  st.accrueSessionSegment(readingStatsSegmentWall, readingStatsLastMillis);
+  st.saveIfDirty();
 }
 
 ScreenshotInfo EpubReaderActivity::getScreenshotInfo() const {
