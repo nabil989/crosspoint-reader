@@ -10,11 +10,8 @@
 #include <Logging.h>
 #include <esp_system.h>
 
-<<<<<<< HEAD
-#include <ctime>
-    =======
 #include <algorithm>
-    >>>>>>> feature/bookmark
+#include <ctime>
 #include <iterator>
 #include <limits>
 
@@ -38,24 +35,24 @@
 #include "util/ReadingStatsStore.h"
 #include "util/ScreenshotUtil.h"
 
-    namespace {
-  // Long-press Confirm while reading adds a bookmark. Must exceed SKIP_HOLD_MS (700) so it is not
-  // confused with chapter-skip / orientation holds on page-turn keys.
-  constexpr unsigned long BOOKMARK_ADD_HOLD_MS = 1000;
+namespace {
+// Long-press Confirm while reading adds a bookmark. Must exceed SKIP_HOLD_MS (700) so it is not
+// confused with chapter-skip / orientation holds on page-turn keys.
+constexpr unsigned long BOOKMARK_ADD_HOLD_MS = 1000;
 
-  // pagesPerRefresh now comes from SETTINGS.getRefreshFrequency()
-  // pages per minute, first item is 1 to prevent division by zero if accessed
-  constexpr int PAGE_TURN_RATES[] = {1, 1, 3, 6, 12};
+// pagesPerRefresh now comes from SETTINGS.getRefreshFrequency()
+// pages per minute, first item is 1 to prevent division by zero if accessed
+constexpr int PAGE_TURN_RATES[] = {1, 1, 3, 6, 12};
 
-  int clampPercent(int percent) {
-    if (percent < 0) {
-      return 0;
-    }
-    if (percent > 100) {
-      return 100;
-    }
-    return percent;
+int clampPercent(int percent) {
+  if (percent < 0) {
+    return 0;
   }
+  if (percent > 100) {
+    return 100;
+  }
+  return percent;
+}
 
 }  // namespace
 
